@@ -9,6 +9,7 @@ import src.com.airtribe.learntrack.repository.LoginRepository;
 public class LoginService {
     private LoginRepository loginRepository = new LoginRepository();
     private EntityRepository entityRepository = new EntityRepository();
+    private String test;
 
     public boolean login(String login_id , String password) throws UnAuthorizedException{
         if(entityRepository.getEntityRepository().containsKey(login_id)){
