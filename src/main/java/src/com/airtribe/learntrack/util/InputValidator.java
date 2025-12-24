@@ -5,15 +5,22 @@ import src.com.airtribe.learntrack.exception.InvalidInput;
 
 public class InputValidator {
     public static boolean isValidTextInput(String input) throws InvalidInput {
-        String regex = "^[A-Za-z]+$";
+        String regex = "^[A-Za-z ]+$";
         if(input.matches(regex))
             return true;
         else
             throw new InvalidInput();
     }
 
+    public static boolean isEmptyString(String input) throws InvalidInput {
+        if(!(input.isBlank() || input.equals("") || input == null))
+            return false;
+
+        return true;
+    }
+
     public static boolean isValidContactNumber(String input) throws InvalidContactNumber {
-        String regex = "^[0-9]+$";
+        String regex = "^[6-9]\\d{9}$";
         if(input.matches(regex))
             return true;
         else

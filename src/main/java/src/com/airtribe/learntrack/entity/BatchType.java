@@ -1,23 +1,21 @@
 package src.com.airtribe.learntrack.entity;
 
-public enum Role {
-    STUDENT(1),
-    INSTUCTOR(2),
-    COORIDINATOR(3),
-    ADMIN(4);
+public enum BatchType {
+    ONLINE(1),
+    OFFLINE(2);
 
     private final int code;
-    Role(int code) {
+
+    BatchType(int code){
         this.code = code;
     }
 
-    public int getCode() {
+    public int getCode(){
         return code;
     }
 
-    // Factory method
-    public static Role fromInput(int input) {
-        for (Role type : values()) {
+    public static BatchType fromInput(int input) {
+        for (BatchType type : values()) {
             if (type.code == input) {
                 return type;
             }

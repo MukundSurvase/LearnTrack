@@ -2,7 +2,9 @@ package src.com.airtribe.learntrack.entity;
 
 import src.com.airtribe.learntrack.util.IDGenerator;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,8 +18,11 @@ public class Batch {
     private List<String> mentors;
     private String instructorId;
     private String coOridinatorId;
+    private boolean isLive;
+    private BatchType batchType;
+    private String batchStartAt;
 
-    public Batch(String courseId, long batchMaxSize,String instructorId,String coOridinatorId) {
+    public Batch(String courseId, long batchMaxSize,String instructorId,String coOridinatorId , BatchType batchType) {
         this.batchId = IDGenerator.generateID(this);
         this.courseId = courseId;
         this.batchMaxSize = batchMaxSize;
@@ -26,6 +31,32 @@ public class Batch {
         this.coOridinatorId = coOridinatorId;
         this.enrolledStudents = new ArrayList<>();
         this.mentors = new ArrayList<>();
+        this.isLive = true;
+        this.batchType = batchType;
+        this.batchStartAt = getCurrentDateAndTime();
+    }
+
+    private String getCurrentDateAndTime(){
+        Date createdAt = new Date(); // current date & time
+
+        SimpleDateFormat sdf =
+                new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(createdAt);
+    }
+    public BatchType getBatchType() {
+        return batchType;
+    }
+
+    public void setBatchType(BatchType batchType) {
+        this.batchType = batchType;
+    }
+
+    public boolean isLive() {
+        return isLive;
+    }
+
+    public void setLive(boolean live) {
+        isLive = live;
     }
 
     public String getBatchId() {
@@ -88,5 +119,10 @@ public class Batch {
 
     public void setCoOridinatorId(String coOridinatorId) {
         this.coOridinatorId = coOridinatorId;
+    }
+
+    public String toString(){
+        return batchId+"\t║\t"+courseId+"\t║\t"+batchMaxSize+"\t║\t"+batchSize+"\t║\t"+instructorId+
+                "\t║\t"+coOridinatorId+"\t║\t"+isLive+"\t║\t"+batchType+"\t║\t"+batchStartAt+"\t║";
     }
 }

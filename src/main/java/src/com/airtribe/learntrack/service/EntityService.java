@@ -2,28 +2,48 @@ package src.com.airtribe.learntrack.service;
 
 import src.com.airtribe.learntrack.entity.Entity;
 import src.com.airtribe.learntrack.entity.Login;
+import src.com.airtribe.learntrack.exception.InvalidContactNumber;
+import src.com.airtribe.learntrack.exception.InvalidEmailException;
+import src.com.airtribe.learntrack.exception.InvalidInput;
 import src.com.airtribe.learntrack.repository.EntityRepository;
 import src.com.airtribe.learntrack.repository.LoginRepository;
+import src.com.airtribe.learntrack.util.InputValidator;
+import src.com.airtribe.learntrack.util.Util;
 
-import java.io.Console;
 import java.util.Scanner;
 
 public class EntityService {
 
-    private LoginRepository loginRepository = new LoginRepository();
-    private EntityRepository entityRepository = new EntityRepository();
+    private LoginRepository loginRepository = LoginRepository.getInstance();
+    private EntityRepository entityRepository;
 
-    public boolean registerEntity(Entity entity){
-        if(entity != null){
-            entityRepository.getEntityRepository().put(entity.getId(),entity);
+    {
+        try {
+            entityRepository = EntityRepository.getInstance();
+        } catch (InvalidContactNumber e) {
+            throw new RuntimeException(e);
+        } catch (InvalidEmailException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidInput e) {
+            throw new RuntimeException(e);
         }
-        newRegistrationEntry(entity);
-        return true;
     }
 
-    public boolean removeEntity(Entity entity){
+    public boolean registerEntity(Entity entity) throws InvalidInput {
+        boolean result = true;
+        if (entity != null) {
+            entityRepository.getEntityRepository().put(entity.getId(), entity);
+        }else throw new InvalidInput();
 
-        if(entityRepository.getEntityRepository().containsKey(entity.getId())){
+        if(!entity.getId().equalsIgnoreCase("admin"))
+             result = newRegistrationEntry(entity);
+
+        return result;
+    }
+
+    public boolean removeEntity(Entity entity) {
+
+        if (entityRepository.getEntityRepository().containsKey(entity.getId())) {
             loginRepository.getLoginRepository().remove(entity.getId());
             entityRepository.getEntityRepository().remove(entity.getId());
             return true;
@@ -31,99 +51,112 @@ public class EntityService {
         return false;
     }
 
-    public Entity getEntityById(String id){
-        if(entityRepository.getEntityRepository().containsKey(id)){
+    public Entity getEntityById(String id) throws InvalidInput {
+        if ((!InputValidator.isEmptyString(id)) && entityRepository.getEntityRepository().containsKey(id)) {
             return entityRepository.getEntityRepository().get(id);
         }
         return null;
     }
 
-    private boolean newRegistrationEntry(Entity entity){
 
-        System.out.println("**********************");
-        System.out.println("* CREATE CREDENTIAL *");
-        System.out.println("**********************\n");
+    private boolean newRegistrationEntry(Entity entity) {
+
+        Util.titlePage("create Credential");
+        Util.newLine();
+        Util.printDashLine();
+        int count = 0;
 
         do {
+            count++;
             Scanner sc = new Scanner(System.in);
-            System.out.println("Enter password : ");
+            Util.newLine();
+            System.out.print("ENTER PASSWORD : ");
             String password = sc.nextLine();
-            System.out.println("**********************");
-            System.out.println("Re-Enter password : ");
+            Util.printDashLine();
+            Util.newLine();
+            System.out.print("RE-ENTER PASSWORD : ");
             String rePassword = sc.nextLine();
-            System.out.println("**********************");
+            Util.printDashLine();
+            Util.newLine();
             if (password.equals(rePassword)) {
-                System.out.println("Password Matched");
-                Login login = new Login(entity.getId(),password,entity.getRole());
-                loginRepository.getLoginRepository().put(entity.getId(),login);
+                System.out.print("PASSWORD MATCHED !");
+                Login login = new Login(entity.getId(), password, entity.getRole());
+                loginRepository.getLoginRepository().put(entity.getId(), login);
                 return true;
+            } else {
+                Util.newLine();
+                System.out.print("PASSWORD NOT MATCHED !!");
+                Util.printDashLine();
+                Util.newLine();
+                System.out.print("PLEASE TRY AGAIN [YOU WILL GET MAX 5 CHANCES ] ["+count+" out of 5 USED]!!!");
             }
-            else {
-                System.out.println("Password Not Matched");
-                System.out.println("**********************");
-                System.out.println("Do you want to Try it again ?[Y/N] :");
+        } while (count<=0);
+        return false;
+    }
+
+    public boolean updatePassword(String login_id) {
+        Login login = null;
+        if (loginRepository.getLoginRepository().containsKey(login_id)) {
+            login = loginRepository.getLoginRepository().get(login_id);
+        }
+        if (login != null && loginRepository.getLoginRepository().get(login_id).isActive()) {
+
+
+            Util.titlePage("update Credential");
+
+            do {
+                Scanner sc = new Scanner(System.in);
+                System.out.println("ENTER OLD PASSWORD: ");
+                String password = sc.nextLine();
+                Util.printDashLine();
+                Util.newLine();
+                System.out.println("ENTER NEW PASSWORD: ");
+                String rePassword = sc.nextLine();
+                Util.printDashLine();
+                Util.newLine();
+                System.out.println("CONFIRM PASSWORD :");
+                String confirmPassword = sc.nextLine();
+                Util.printDashLine();
+                Util.newLine();
+
+                if (login.getPassword().equals(password)) {
+                    if (rePassword.equals(confirmPassword)) {
+                        System.out.println("PASSWORD MATCHED");
+                        login.setPassword(rePassword);
+                        loginRepository.getLoginRepository().replace(login.getLoginId(), login);
+                    }
+                    return true;
+                }
+
+                System.out.println("PASSWORD MISS-MATCH");
+                Util.printDashLine();
+                System.out.println("DO YOU WANT TO TRY IT AGAIN ?[Y/N]:");
                 String response = sc.nextLine().trim().toUpperCase();
                 if (response.equals("Y"))
                     continue;
                 else if (response.equals("N"))
                     break;
                 else
-                    System.out.println("Invalid input! Please enter Y or N.");
-            }
-        }while (true);
+                    System.out.println("INVALID INPUT ! PLEASE ENTER EITHER 'Y' OR 'N'.");
 
-        return false;
-
-    }
-
-    public boolean updatePassword(String login_id){
-        Login login = null;
-        if(loginRepository.getLoginRepository().containsKey(login_id)) {
-             login = loginRepository.getLoginRepository().get(login_id);
-        }
-        if(login!=null && loginRepository.getLoginRepository().get(login_id).isActive()){
-            System.out.println("**********************");
-            System.out.println("* UPDATE CREDENTIAL *");
-            System.out.println("**********************\n");
-
-            do {
-                Scanner sc = new Scanner(System.in);
-                System.out.println("Enter old password : ");
-                String password = sc.nextLine();
-                System.out.println("**********************");
-                System.out.println("Enter new password : ");
-                String rePassword = sc.nextLine();
-                System.out.println("**********************");
-                System.out.println("confirm password : ");
-                String confirmPassword = sc.nextLine();
-                System.out.println("**********************");
-
-                if (login.getPassword().equals(password)) {
-                    if(rePassword.equals(confirmPassword)) {
-                        System.out.println("Password Matched");
-                        login.setPassword(password);
-                        loginRepository.getLoginRepository().put(login.getLoginId(), login);
-                    }
-                    return true;
-                }
-
-                    System.out.println("Password Not Matched");
-                    System.out.println("**********************");
-                    System.out.println("Do you want to Try it again ?[Y/N] :");
-                    String response = sc.nextLine().trim().toUpperCase();
-                    if (response.equals("Y"))
-                        continue;
-                    else if (response.equals("N"))
-                        break;
-                    else
-                        System.out.println("Invalid input! Please enter Y or N.");
-
-            }while (true);
+            } while (true);
         }
         return false;
     }
 
-    public static void main(String [] args){
-        //EntityService.newRegistrationEntry(null);
+    public boolean updateXpPoints(Entity entity, long xpPoints) throws InvalidInput {
+        if (entity != null && entityRepository.getEntityRepository().containsKey(entity.getId())) {
+            Entity entity1 = entityRepository.getEntityRepository().get(entity.getId());
+            if (xpPoints > 0)
+                entity1.updateXpPoints(xpPoints);
+            else
+                throw new InvalidInput("Invalid XpPoints !!");
+        }
+        throw new InvalidInput("Entity Not Found !!");
     }
+
+    public Entity showMyProfile(Entity entity){
+        return entityRepository.getEntityRepository().get(entity.getId());
+    }
+
 }

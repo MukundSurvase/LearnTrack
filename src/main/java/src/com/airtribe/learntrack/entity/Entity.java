@@ -4,6 +4,7 @@ import src.com.airtribe.learntrack.exception.InvalidContactNumber;
 import src.com.airtribe.learntrack.exception.InvalidEmailException;
 import src.com.airtribe.learntrack.exception.InvalidInput;
 import src.com.airtribe.learntrack.util.IDGenerator;
+import src.com.airtribe.learntrack.util.Util;
 
 import java.util.List;
 
@@ -19,8 +20,22 @@ public class Entity extends Person {
 
         super(firstName, middleName, lastName, gender, age, contact, emailId, addressLine1, addressLine2, addressLine3, city, state, country);
         xpPoints = 0;
-        id = IDGenerator.generateID(this);
         this.role = role;
+        id = IDGenerator.generateID(this);
+        notifyCreation(id);
+    }
+
+    private void notifyCreation(String id){
+        Util.newLine();
+        Util.newLine();
+        Util.printDashLine();
+        if(!id.equalsIgnoreCase("admin")) {
+            System.out.print("ENTITY CREATED WITH ID:\t" + id);
+        }
+
+        Util.printDashLine();
+        Util.newLine();
+        Util.newLine();
     }
 
     public String getId() {
@@ -48,4 +63,22 @@ public class Entity extends Person {
     public void setBatches(List<Batch> batches) {
         this.batches = batches;
     }
+
+    public boolean enrollToNewBatch(Batch batch){
+
+        if(batches.contains(batch)){
+            return false;
+        }else{
+            batches.add(batch);
+        }
+        return true;
+    }
+
+    public String toString(){
+        return id+"\t║\t"+role+"\t║\t"+xpPoints+"\t║\t"+getFirstName()+"\t║\t"+getMiddleName()+"\t║\t"+
+                getLastName()+"\t║\t"+getGender()+"\t║\t"+getAge()+"\t║\t"+getContact()+"\t║\t"+
+                getEmailId()+"\t║\t"+getAddressLine1()+"\t║\t"+getAddressLine2()+"\t║\t"+
+                getAddressLine3()+"\t║\t"+getCity()+"\t║\t"+getState()+"\t║\t"+getCountry();
+    }
+
 }

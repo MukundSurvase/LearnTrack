@@ -5,7 +5,9 @@ public class InvalidInput extends Exception{
     private String message;
 
     public InvalidInput(String message){
+
         super(message);
+        this.message = message;
     }
 
     public InvalidInput(){
