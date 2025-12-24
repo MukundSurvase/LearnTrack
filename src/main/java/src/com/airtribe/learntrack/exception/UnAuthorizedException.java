@@ -4,7 +4,8 @@ public class UnAuthorizedException extends Exception {
     private String message;
 
     public UnAuthorizedException(){
-        super("UnAuthorized !!");
+        super("UnAuthorized User");
+        message = "UnAuthorized User";
     }
 
     public UnAuthorizedException(String message){
