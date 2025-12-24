@@ -7,5 +7,6 @@ public class AirtribeHomePage {
     static void main() throws UnAuthorizedException {
         Airtribe airtribe = Airtribe.getInstance();
         airtribe.runAirtribe();
+        System.out.print("Thank you !!");
     }
 }
